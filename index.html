@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lumino — Task Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- Ambient background orbs -->
+  <div class="orb orb--1" aria-hidden="true"></div>
+  <div class="orb orb--2" aria-hidden="true"></div>
+  <div class="orb orb--3" aria-hidden="true"></div>
+
+  <div class="app-wrap">
+    <div class="glass-card" id="app">
+
+      <!-- ── HEADER ── -->
+      <header class="header">
+        <div class="header__left">
+          <div class="header__logo" aria-hidden="true">
+            <span class="logo-dot logo-dot--1"></span>
+            <span class="logo-dot logo-dot--2"></span>
+            <span class="logo-dot logo-dot--3"></span>
+          </div>
+          <div>
+            <h1 class="header__title">Lumino</h1>
+            <p class="header__sub" id="dateDisplay"></p>
+          </div>
+        </div>
+        <button class="btn-theme" id="themeToggle" aria-label="Toggle theme">
+          <span class="btn-theme__icon" id="themeIcon">🌙</span>
+          <span id="themeText">Light</span>
+        </button>
+      </header>
+
+      <!-- ── INPUT ROW ── -->
+      <section class="input-section" aria-label="Add task">
+        <div class="input-row">
+          <div class="input-wrap" id="inputWrap">
+            <span class="input-wrap__icon" aria-hidden="true">✦</span>
+            <input
+              id="taskInput"
+              type="text"
+              class="task-input"
+              placeholder="What needs to be done?"
+              maxlength="160"
+              autocomplete="off"
+              spellcheck="false"
+              aria-label="New task"
+            />
+            <span class="char-count" id="charCount"></span>
+          </div>
+          <button class="btn-add" id="addBtn" aria-label="Add task">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M9 2v14M2 9h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Priority selector -->
+        <div class="priority-row" role="group" aria-label="Task priority">
+          <button class="priority-btn active" data-priority="low"    aria-pressed="true">
+            <span class="priority-dot" style="--c:#4ade80"></span> Low
+          </button>
+          <button class="priority-btn"        data-priority="medium" aria-pressed="false">
+            <span class="priority-dot" style="--c:#facc15"></span> Medium
+          </button>
+          <button class="priority-btn"        data-priority="high"   aria-pressed="false">
+            <span class="priority-dot" style="--c:#f87171"></span> High
+          </button>
+        </div>
+      </section>
+
+      <!-- ── TOOLBAR: search + export/import ── -->
+      <div class="toolbar">
+        <div class="search-wrap">
+          <svg class="search-wrap__icon" width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+            <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input
+            id="searchInput"
+            type="text"
+            class="search-input"
+            placeholder="Search tasks..."
+            autocomplete="off"
+            aria-label="Search tasks"
+          />
+        </div>
+        <div class="toolbar__actions">
+          <button class="btn-tool" id="exportBtn" title="Export tasks as JSON">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+              <path d="M2 10v3h11v-3M7.5 1v8M4.5 6l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Export
+          </button>
+          <label class="btn-tool" title="Import tasks from JSON">
+            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+              <path d="M2 10v3h11v-3M7.5 9V1M4.5 4l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Import
+            <input type="file" id="importInput" accept=".json" style="display:none" aria-label="Import tasks file"/>
+          </label>
+        </div>
+      </div>
+
+      <!-- ── FILTER TABS ── -->
+      <nav class="filter-nav" role="tablist" aria-label="Filter tasks">
+        <div class="filter-track" id="filterTrack">
+          <div class="filter-pill" id="filterPill" aria-hidden="true"></div>
+          <button class="filter-tab active" data-filter="all"       role="tab" aria-selected="true">All</button>
+          <button class="filter-tab"        data-filter="active"    role="tab" aria-selected="false">Active</button>
+          <button class="filter-tab"        data-filter="completed" role="tab" aria-selected="false">Completed</button>
+        </div>
+        <button class="btn-clear" id="clearBtn" aria-label="Clear completed tasks" disabled>
+          Clear Completed
+        </button>
+      </nav>
+
+      <!-- ── TASK LIST ── -->
+      <ul class="task-list" id="taskList" role="list" aria-label="Tasks" aria-live="polite"></ul>
+
+      <!-- ── EMPTY STATE ── -->
+      <div class="empty-state" id="emptyState" hidden>
+        <div class="empty-state__icon" aria-hidden="true">✨</div>
+        <p id="emptyMsg">No tasks yet. Add your first task!</p>
+      </div>
+
+      <!-- ── STATS FOOTER ── -->
+      <footer class="stats-bar" role="status" aria-live="polite">
+        <span id="statTotal">0 total</span>
+        <span class="stats-bar__dot" aria-hidden="true">•</span>
+        <span id="statDone">0 completed</span>
+        <span class="stats-bar__dot" aria-hidden="true">•</span>
+        <span id="statActive">0 active</span>
+      </footer>
+
+    </div><!-- /glass-card -->
+  </div><!-- /app-wrap -->
+
+  <script src="script.js"></script>
+</body>
+</html>
